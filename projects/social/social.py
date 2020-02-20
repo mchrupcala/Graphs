@@ -110,15 +110,38 @@ class SocialGraph:
 
         The key is the friend's ID and the value is the path.
         """
+        print("For user: ", user_id)
+
+
+        # Create an empty queue
+        q = Queue()
+        # Add the starting vertex_id to the queue
+        q.enqueue([user_id])
+        # Create an empty dict to store visited nodes
         visited = {}  # Note that this is a dictionary, not a set
-        # !!!! IMPLEMENT ME
+        # While the queue is not empty...
+        while q.size() > 0:
+            # Dequeue, the first vertex
+            path = q.dequeue()
+            v = path[-1]
+
+            # Check if it's been visited
+            # If it has not been visited...
+            if v not in visited:
+                # Mark it as visited
+                visited[v] = path
+
+                # Then add all neighbors to the back of the queue
+                for friend in self.friendships[v]:
+                    new_path = [*visited[v], friend]
+                    q.enqueue(new_path)
         return visited
 
 
 if __name__ == '__main__':
     sg = SocialGraph()
     sg.populate_graph(10, 2)
-    print(sg.users)
-    print(sg.friendships)
-    # connections = sg.get_all_social_paths(1)
-    # print(connections)
+    print("\nUsers: ", sg.users, "\n")
+    print("Friendships: ", sg.friendships)
+    connections = sg.get_all_social_paths(1)
+    print(connections)
