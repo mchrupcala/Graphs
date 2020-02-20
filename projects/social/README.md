@@ -40,6 +40,7 @@ Now that you have a graph full of users and friendships, you can crawl through t
 {1: [1], 8: [1, 8], 10: [1, 10], 5: [1, 5], 2: [1, 10, 2], 6: [1, 10, 6], 7: [1, 10, 2, 7]}
 ```
 Note that in this sample, Users 3, 4 and 9 are not in User 1's extended social network.
+****users 2 & 6 are 2nd-degree connections, and 7 is a 3rd-degree
 
 * Hint 1: What kind of graph search guarantees you a shortest path?
 * Hint 2: Instead of using a `set` to mark users as visited, you could use a `dictionary`. Similar to sets, checking if something is in a dictionary runs in O(1) time. If the visited user is the key, what would the value be?
@@ -47,8 +48,10 @@ Note that in this sample, Users 3, 4 and 9 are not in User 1's extended social n
 ## 3. Questions
 
 1. To create 100 users with an average of 10 friends each, how many times would you need to call `add_friendship()`? Why?
+    500 times. Because each 1 (of 100) user has 10 friends, so 100 * 10 = 1,000...but call the function half as many times, because each unique friendship can be called once for those 2 friends.
 
 2. If you create 1000 users with an average of 5 random friends each, what percentage of other users will be in a particular user's extended social network? What is the average degree of separation between a user and those in his/her extended network?
+    2.5% if you're counting "extended social network" as 2nd-connections only ('friend of a friend'). But it depends how you define that, right?
 
 
 
