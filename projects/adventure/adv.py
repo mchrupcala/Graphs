@@ -46,10 +46,10 @@ class Graph:
         """
         Add a directed edge to the graph.
         """
-        print("R1: ", r1, "Directions: ", directions)
-        print(self.room_graph)
-        if r1 in self.room_graph:
-            self.room_graph[r1] = directions
+        if r1 in self.room_graph and self.room_graph[r1] == {}:
+            self.room_graph[r1] = {'n': '?', 's': '?','w': '?','e': '?'}
+        elif r1 in self.room_graph:
+            pass
         else:
             raise IndexError("That room/direction does not exist!")
 
@@ -64,28 +64,86 @@ class Graph:
 # The problem right now is...I can't store directions in Stack b/c they'll be useless when I move rooms.
 
     def dft(self, starting_room):
-        # Create an empty stack
         s = Stack()
-        # Push the starting vertex_id to the stack
-        s.push(starting_room)
+        s.push([starting_room])
         # Create an empty set to store visited nodes
-        # line 70
-        # While the stack is not empty...
+        # visited_in_stack = {}
+
         while s.size() > 0:
-            # Pop the first room
-            cur_room = s.pop()
-            # Check if it's been visited
-            # If it has not been visited...
-            if cur_room.id not in visited_rooms:
-                # Mark it as visited
-                print(cur_room)
-                visited_rooms.add(cur_room.id)
-                self.add_room(cur_room)
-                self.add_directions(cur_room, self.get_rooms(cur_room))
+            #Normally I'd pop this off...but I don't WANT to, UNLESS no room directions left to explore
+            path = s.stack[-1]
+            starting_room = path[-1]
+            #if room hasn't been visited, create an array in visited_in_stack & explore.
+            #but if room HAS been visited, but still directions to explore, then explore anyway, just don't write a new array.
+            if starting_room.id not in self.room_graph:
+                self.add_room(starting_room.id)
+                self.add_directions(starting_room.id, self.get_rooms(starting_room))
+            print(self.room_graph)
+
+            # If there are rooms to explore, start exploring!
+            print("starting room: ", starting_room.id)
+            while starting_room.id not in self.room_graph or '?' in list(self.room_graph[player.current_room.id].values()):
+                print("made it to the loop")
+
+                #Maybe somthing like...if '?' in room direction, add neighbors to stack? then move in that direction, add direction to traversal_path, add new room to visited_in_stack, rinse repeat.
                 # Then push all neighbors to the top of the stack
-                # for room in self.get_rooms(cur_room):
-                #     print(room)
-                #     s.push(room)
+                cur_room_map = self.room_graph[player.current_room.id]
+                starting_room = player.current_room
+                print('reset started: ', starting_room.id)
+                # print("I'm stuck in room ", player.current_room.id)
+                if '?' in list(cur_room_map.values()):
+                    print("Current room's graph: ", cur_room_map)
+                    direction = ''
+                    for i in cur_room_map:
+                        print(cur_room_map[i])
+                        print("Here's i: ", i)
+                        if cur_room_map[i] == '?':
+                            direction = i
+                            break
+                        else:
+                            pass
+                    print('dir: ', direction)
+                    # direction = i
+                    opposite_direction = ''
+                    if direction == 'n':
+                        opposite_direction = 's'
+                    elif direction == 's':
+                        opposite_direction = 'n'
+                    elif direction == 'e':
+                        opposite_direction = 'w'
+                    else:
+                        opposite_direction = 'e'
+                    # print(i)
+                    player.travel(i)
+                    if player.current_room.id != starting_room.id:
+                        print("Travelled to ", player.current_room.id)
+
+                        new_path = [*path, player.current_room]
+                        print(new_path)
+                        # add path to stack
+                        s.push(new_path)
+                        # add direction in both rooms to room_graph
+                        self.add_room(player.current_room.id)
+                        self.add_directions(player.current_room.id, self.get_rooms(player.current_room))
+                        self.room_graph[starting_room.id][direction] = player.current_room.id
+                        self.room_graph[player.current_room.id][opposite_direction] = starting_room.id
+                        # self.room_graph[player.current_room.id]['s'] = cur_room.id
+                        # add direction to traversal_path
+                        traversal_path.append(direction)
+                        # add room to visited_in_stack()
+                        # visited_in_stack[cur_room.id].append('n')
+                        visited_rooms.add(player.current_room.id)
+                        print("Room graph: ", self.room_graph)
+                    else:
+                        # add 'X' to room_graph for cur_room in 'n'
+                        cur_room_map[direction] = 'X'
+                        # print(self.room_graph)
+                # else:
+                print(self.room_graph)
+                s.pop()
+
+
+
 
 
 
