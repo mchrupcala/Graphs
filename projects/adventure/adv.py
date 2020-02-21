@@ -12,10 +12,10 @@ world = World()
 
 # You may uncomment the smaller graphs for development and testing purposes.
 # map_file = "maps/test_line.txt"
-map_file = "maps/test_cross.txt"
+# map_file = "maps/test_cross.txt"
 # map_file = "maps/test_loop.txt"
 # map_file = "maps/test_loop_fork.txt"
-# map_file = "maps/main_maze.txt"
+map_file = "maps/main_maze.txt"
 
 # Loads the map into a dictionary
 room_graph=literal_eval(open(map_file, "r").read())
@@ -68,6 +68,8 @@ class Graph:
         s.push([starting_room])
         # Create an empty set to store visited nodes
         # visited_in_stack = {}
+        # if starting_room.id not in visited_rooms:
+        #     visited_rooms.add(starting_room.id)
 
         while s.size() > 0:
             #Normally I'd pop this off...but I don't WANT to, UNLESS no room directions left to explore
@@ -78,31 +80,23 @@ class Graph:
             if starting_room.id not in self.room_graph:
                 self.add_room(starting_room.id)
                 self.add_directions(starting_room.id, self.get_rooms(starting_room))
-            print(self.room_graph)
 
             # If there are rooms to explore, start exploring!
-            print("starting room: ", starting_room.id)
             while starting_room.id not in self.room_graph or '?' in list(self.room_graph[player.current_room.id].values()):
-                print("made it to the loop")
 
                 #Maybe somthing like...if '?' in room direction, add neighbors to stack? then move in that direction, add direction to traversal_path, add new room to visited_in_stack, rinse repeat.
                 # Then push all neighbors to the top of the stack
                 cur_room_map = self.room_graph[player.current_room.id]
                 starting_room = player.current_room
-                print('reset started: ', starting_room.id)
                 # print("I'm stuck in room ", player.current_room.id)
                 if '?' in list(cur_room_map.values()):
-                    print("Current room's graph: ", cur_room_map)
                     direction = ''
                     for i in cur_room_map:
-                        print(cur_room_map[i])
-                        print("Here's i: ", i)
                         if cur_room_map[i] == '?':
                             direction = i
                             break
                         else:
                             pass
-                    print('dir: ', direction)
                     # direction = i
                     opposite_direction = ''
                     if direction == 'n':
@@ -132,15 +126,21 @@ class Graph:
                         traversal_path.append(direction)
                         # add room to visited_in_stack()
                         # visited_in_stack[cur_room.id].append('n')
-                        visited_rooms.add(player.current_room.id)
-                        print("Room graph: ", self.room_graph)
+                        # visited_rooms.add(player.current_room.id)
                     else:
                         # add 'X' to room_graph for cur_room in 'n'
                         cur_room_map[direction] = 'X'
                         # print(self.room_graph)
-                # else:
-                print(self.room_graph)
-                s.pop()
+            s.pop()
+            if len(s.stack) != 0:
+                new_path = s.stack[-1]
+                new_starting_room = new_path[-1]
+                print("Visted rooms: ", len(visited_rooms), 'room graph: ', len(self.room_graph))
+                for direction, room in self.room_graph[player.current_room.id].items():
+                    if room == new_starting_room.id:
+                        player.travel(direction)
+                        traversal_path.append(direction)
+
 
 
 
@@ -165,6 +165,9 @@ player.current_room = world.starting_room
 print("Current room: ", player.current_room.id)
 # Call dft(), pass in starting room.
 g.dft(player.current_room)
+print("visited rooms: ", visited_rooms)
+print(room_graph)
+print(len(room_graph))
 
 # visited_rooms.add(player.current_room)
 #######################################################
@@ -177,8 +180,10 @@ for move in traversal_path:
     visited_rooms.add(player.current_room)
 
 
-
-
+print("CHECK IT")
+print(len(visited_rooms))
+print(visited_rooms)
+print(len(room_graph))
 if len(visited_rooms) == len(room_graph):
     print(f"TESTS PASSED: {len(traversal_path)} moves, {len(visited_rooms)} rooms visited")
 else:
